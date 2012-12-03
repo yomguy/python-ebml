@@ -1,0 +1,5 @@
+include *.xml
+global-exclude *.pyc
+prune dist
+prune build
+
