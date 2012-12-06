@@ -14,7 +14,7 @@ CLASSIFIERS = ['Programming Language :: Python',
 
 setup(
   name = "python-ebml",
-  url = "https://github.com/jspiros/python-ebml",
+  url = "https://github.com/yomguy/python-ebml.git",
   description = "EBML (Extensible Binary Meta Language) library for Python",
   long_description = open('README.rst').read(),
   author = "Joseph Spiros",
