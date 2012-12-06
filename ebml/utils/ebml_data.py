@@ -7,7 +7,7 @@ import datetime
 
 class EBMLData(object):
 
-    def __init__(self, filename, max_count=-1):
+    def __init__(self, filename):
         self.mod_name, _, self.cls_name = 'ebml.schema.matroska.MatroskaDocument'.rpartition('.')
         try:
             self.doc_mod = __import__(self.mod_name, fromlist=[self.cls_name])
@@ -26,7 +26,6 @@ class EBMLData(object):
 
         self.doc = self.doc_cls(open(filename, 'rb'))
 
-
     def get_data(self):
         offset = 0
         for el in self.doc.roots:
@@ -44,7 +43,6 @@ class EBMLData(object):
         ms = data['clusters'][0]['timecode']
         time = datetime.timedelta(microseconds=ms*1000)
         return str(time)
-
 
     def fill_video_info(self, element, offset, video_info):
         if element.name == 'Duration':
@@ -70,5 +68,4 @@ class EBMLData(object):
                 if i == self.max_count:
                     break
                 i += 1
-
 
