@@ -1,4 +1,6 @@
 include *.xml
+include *.rst
+include *.txt
 global-exclude *.pyc
 prune dist
 prune build
