@@ -1,54 +1,84 @@
 
 from ebml.schema import EBMLDocument, UnknownElement, CONTAINER, BINARY
- 
- 
-def fill_video_info(element, offset, video_info):
-  if element.name == 'Duration':
-    video_info['duration'] = element.value
- 
-  if element.name == 'DisplayWidth':
-    video_info['width'] = element.value
- 
-  if element.name == 'DisplayHeight':
-    video_info['height'] = element.value
- 
-  if element.name == 'Cluster':
-    video_info['clusters'].append({'offset': offset})
- 
-  if element.name == 'Timecode':
-    video_info['clusters'][-1]['timecode'] = element.value
- 
-  if element.type == CONTAINER:
-    for sub_el in element.value:
-      fill_video_info(sub_el, offset + element.head_size, video_info)
-      offset += sub_el.size
- 
- 
+
+import sys
+import json
+import os
+import datetime
+
+class EBMLData(object):
+
+    def __init__(self, filename, max_count=-1):
+        self.mod_name, _, self.cls_name = 'ebml.schema.matroska.MatroskaDocument'.rpartition('.')
+        try:
+            self.doc_mod = __import__(self.mod_name, fromlist=[self.cls_name])
+            self.doc_cls = getattr(self.doc_mod, self.cls_name)
+        except ImportError:
+            parser.error('unable to import module %s' % self.mod_name)
+        except AttributeError:
+            parser.error('unable to import class %s from %s' % (self.cls_name, self.mod_name))
+
+
+
+        self.video_info = {}
+        self.video_info['filename'] = filename
+        self.video_info['total_size'] = os.stat(filename).st_size
+        self.video_info['clusters'] = []
+
+        self.doc = self.doc_cls(open(filename, 'rb'))
+
+
+    def get_data(self):
+        offset = 0
+        for el in self.doc.roots:
+            self.fill_video_info(el, offset, self.video_info)
+            offset += el.size
+        return self.video_info
+
+    def get_full_info(self):
+        self.max_count = -1
+        return self.get_data()
+
+    def get_first_cluster_timecode(self):
+        self.max_count = 4
+        data = self.get_data()
+        ms = data['clusters'][0]['timecode']
+        time = datetime.timedelta(microseconds=ms*1000)
+        return str(time)
+
+
+    def fill_video_info(self, element, offset, video_info):
+        if element.name == 'Duration':
+            video_info['duration'] = element.value
+
+        if element.name == 'DisplayWidth':
+            video_info['width'] = element.value
+
+        if element.name == 'DisplayHeight':
+            video_info['height'] = element.value
+
+        if element.name == 'Cluster':
+            video_info['clusters'].append({'offset': offset})
+
+        if element.name == 'Timecode':
+            video_info['clusters'][-1]['timecode'] = element.value
+
+        if element.type == CONTAINER:
+            i = 0
+            for sub_el in element.value:
+                self.fill_video_info(sub_el, offset + element.head_size, video_info)
+                offset += sub_el.size
+                if i == self.max_count:
+                    break
+                i += 1
+
+
+
 if __name__ == '__main__':
-  import sys
-  import json
-  import os
-   
-  mod_name, _, cls_name = 'ebml.schema.matroska.MatroskaDocument'.rpartition('.')
-  try:
-    doc_mod = __import__(mod_name, fromlist=[cls_name])
-    doc_cls = getattr(doc_mod, cls_name)
-  except ImportError:
-    parser.error('unable to import module %s' % mod_name)
-  except AttributeError:
-    parser.error('unable to import class %s from %s' % (cls_name, mod_name))
-   
-  video_info = {}
-  video_info['filename'] = sys.argv[1]
-  video_info['total_size'] = os.stat(sys.argv[1]).st_size
-  video_info['clusters'] = []
- 
-  with open(sys.argv[1], 'rb') as stream:
-    doc = doc_cls(stream)
-    offset = 0
-    for el in doc.roots:
-      fill_video_info(el, offset, video_info)
-      offset += el.size
-      print offset
- 
-  print json.dumps(video_info)
+    ebml_obj = EBMLData(sys.argv[-1], max_count=4)
+    print ebml_obj.get_first_cluster_timecode()
+
+
+
+
+
