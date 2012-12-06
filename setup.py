@@ -5,6 +5,13 @@
 
 from setuptools import setup, find_packages
 
+CLASSIFIERS = ['Programming Language :: Python',
+                'Development Status :: 3 - Alpha',
+                'Operating System :: OS Independent',
+                'Topic :: Multimedia :: Video',
+                'Topic :: Software Development :: Libraries :: Python Modules',
+                ]
+
 setup(
   name = "python-ebml",
   url = "https://github.com/jspiros/python-ebml",
@@ -20,7 +27,8 @@ setup(
   license='BSD',
   packages = find_packages(),
   namespace_packages=['ebml'],
-  package_data={'': ['*.xml']}, 
+  package_data={'': ['*.xml']},
   include_package_data = True,
   zip_safe = False,
+  classifiers = CLASSIFIERS,
 )
