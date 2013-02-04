@@ -53,7 +53,7 @@ class EBMLData(object):
         data = self.get_data()
         ms = data['clusters'][0]['timecode']
         td = datetime.timedelta(microseconds=ms*1000)
-        return (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
+        return (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10.0**6
 
     def fill_video_info(self, element, offset, video_info):
         if element.name == 'Duration':
