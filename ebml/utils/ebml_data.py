@@ -37,7 +37,7 @@ class EBMLData(object):
         self.max_count = -1
         return self.get_data()
 
-    def get_first_cluster_duration(self):
+    def get_first_cluster_timecode(self):
         self.max_count = 4
         data = self.get_data()
         ms = data['clusters'][0]['timecode']
