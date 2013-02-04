@@ -37,7 +37,7 @@ class EBMLData(object):
         self.max_count = -1
         return self.get_data()
 
-    def get_first_cluster_timecode(self):
+    def get_first_cluster_duration(self):
         self.max_count = 4
         data = self.get_data()
         ms = data['clusters'][0]['timecode']
@@ -47,6 +47,13 @@ class EBMLData(object):
         seconds = d.seconds % 60
         microseconds = d.microseconds
         return "%.2d:%.2d:%.2d.%.2d" % (hours, minutes, seconds, microseconds)
+
+    def get_first_cluster_seconds(self):
+        self.max_count = 4
+        data = self.get_data()
+        ms = data['clusters'][0]['timecode']
+        td = datetime.timedelta(microseconds=ms*1000)
+        return (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
 
     def fill_video_info(self, element, offset, video_info):
         if element.name == 'Duration':
